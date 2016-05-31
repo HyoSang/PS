@@ -1,40 +1,15 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 
-void setWL(char (* Team)[20],int W,int L)
+void setWL(char (* Team)[20],int W,int L)//set Win and lose
 {
 	Team[W][L] = 'W';
 	Team[L][W] = 'L';
 }
-void setTie(char(*Team)[20], int a, int b)
+void setTie(char(*Team)[20], int a, int b)//set Tie
 {
 	Team[a][b] = 'T';
 	Team[b][a] = 'T';
-}
-void calPoint(char(*Team)[20],int * point, int W, int L, int T)
-{
-	int i, j,sum;
-	for (i = 0; i < 20; i++)
-	{
-		sum = 0;
-		for (j = 0; j < 20; j++)
-		{
-			if (i == j)continue;
-			else if (Team[i][j] == 'W')
-			{
-				sum += W;
-			}
-			else if (Team[i][j] == 'L')
-			{
-				sum += L;
-			}
-			else
-			{
-				sum += T;
-			}
-		}
-		point[i] = sum;
-	}
 }
 void Print(char(*Team)[20])
 {
@@ -43,12 +18,12 @@ void Print(char(*Team)[20])
 	{
 		for (j = 0; j < 20; j++)
 		{
-			printf("%c", Team[i][j]);
+			printf("%c", Team[i][j]); //print team result
 		}
 		printf("\n");
 	}
 }
-int setResult(char tok, char(*Team)[20], int a, int b)
+int setResult(char tok, char(*Team)[20], int a, int b)//set Win,lose,Tie for no violation rule
 {
 	if (Team[a][b] != 0||Team[b][a]!=0)return 0;
 	if (a == b)
@@ -72,18 +47,17 @@ int setResult(char tok, char(*Team)[20], int a, int b)
 }
 int main(void)
 {
-	char team[20][20];
-	int win, lose, draw, rank, tok,i,j;
-	char ranka[3];
+	char team[20][20];//result array
+	int win, lose, draw, rank, tok,i,j;//win,lose,draw : each case point repository, rank : save rank tok : max or min
 	for (i = 0; i < 20; i++)
 	{
 		for (j = 0; j < 20; j++)
 		{
-			team[i][j] = 0;
+			team[i][j] = 0; //initialize team array
 		}
 	}
-	scanf("%d %d %d %d %d", &win, &draw, &lose, &rank, &tok);
-	if (win == lose && lose == draw)
+	scanf("%d %d %d %d %d", &win, &draw, &lose, &rank, &tok);//get input
+	if (win == lose && lose == draw)//if three points are same, all team must get same point. so set tie all team.
 	{
 		for (i = 0; i < 20; i++)
 		{
@@ -96,58 +70,9 @@ int main(void)
 		Print(team);
 		return;
 	}
-	if (win > lose)
+	if (tok == 0)//case min
 	{
-		if (win > draw)
-		{
-			if (lose > draw)
-			{
-				ranka[0] = 'w';
-				ranka[1] = 'l';
-				ranka[2] = 'd';
-			}
-			else
-			{
-				ranka[0] = 'w';
-				ranka[1] = 'd';
-				ranka[2] = 'l';
-			}
-
-		}
-		else
-		{
-			ranka[0] = 'd';
-			ranka[1] = 'w';
-			ranka[2] = 'l';
-		}
-	}
-	else
-	{
-		if (lose > draw)
-		{
-			if (win > draw)
-			{
-				ranka[0] = 'l';
-				ranka[1] = 'w';
-				ranka[2] = 'd';
-			}
-			else
-			{
-				ranka[0] = 'l';
-				ranka[1] = 'd';
-				ranka[2] = 'w';
-			}
-		}
-		else
-		{
-			ranka[0] = 'd';
-			ranka[1] = 'l';
-			ranka[2] = 'w';
-		}
-	}
-	if (tok == 0)
-	{
-		if ((win>=lose && lose<draw)|| (lose >= win && win<draw))
+		if ((win>=lose && lose<draw)|| (lose >= win && win<draw))//case that draw isn't smallest 
 		{
 			if (win > lose)
 			{
@@ -155,7 +80,7 @@ int main(void)
 				{
 					for (j = rank - 1; j < 20; j++)
 					{
-						setResult('w', team, i, j);
+						setResult('w', team, i, j); 
 					}
 				}
 				for (i = 0; i < rank - 1; i++)
@@ -164,7 +89,7 @@ int main(void)
 					{
 						setResult('w', team, i, j);
 					}
-				}
+				}//set result above input rank team highest
 			}
 			else
 			{
@@ -181,10 +106,10 @@ int main(void)
 					{
 						setResult('l', team, i, j);
 					}
-				}
+				}//set result above input rank team highest
 			}
 		}
-		else
+		else // draw is smallest, set all result by tie
 		{
 			for (i = 0; i < 20; i++)
 			{
@@ -196,18 +121,28 @@ int main(void)
 		}
 		if (win >= lose)
 		{
-			if (((20-rank) / 2) * win<(20-rank)*draw)
+			if (((20-rank) / 2) * win<(20-rank)*draw)//We set result 20-rank result by each team so compare case
 			{
-				for (i = rank-1; i < 20; i++)
+				if (rank - 1 % 2 != 0)
+				{
+					if (win > draw)
+					{
+						for (i = rank - 1; i < 19; i++)
+						{
+							setResult('t', team, i, i + 1);
+						}
+					}
+				}
+				for (i = rank-1; i < 20; i++)//if we choose win or lose, win or lose can be setted 20-rank times.
 				{
 					tok = 0;
 					for (j = rank-1; j < 20; j++)
 					{
 						tok += setResult('w', team, i, j);
-						if (tok == ((20-rank) / 2))break;
+						if (tok == ((20-rank) / 2))break;//so count case win or lose. 
 					}
 				}
-				for (i = rank-1; i < 20; i++)
+				for (i = rank-1; i < 20; i++) // if we set result 20 - rank times, last results are setted by opposite value.
 				{
 					for (j = rank-1; j < 20; j++)
 					{
@@ -230,6 +165,16 @@ int main(void)
 		{
 			if (((20 - rank) / 2) * lose<(20 - rank)*draw)
 			{
+				if (rank - 1 % 2 != 0)
+				{
+					if (lose > draw)
+					{
+						for (i = rank - 1; i < 19; i++)
+						{
+							setResult('t', team, i, i + 1);
+						}
+					}
+				}
 				for (i = rank-1; i < 20; i++)
 				{
 					tok = 0;
@@ -240,10 +185,10 @@ int main(void)
 					}
 				}
 				for (i = rank-1; i < 20; i++)
-				{
+				{	
 					for (j = rank-1; j < 20; j++)
 					{
-						setResult('l', team, i, j);
+						tok += setResult('l', team, i, j);
 					}
 				}
 			}
@@ -262,21 +207,46 @@ int main(void)
 	}
 	else
 	{
-		for (i = 0; i<rank; i++)
+		if ((win >= lose && (win>draw) || (lose >= win && lose > draw)))
 		{
-			for (j = rank; j<20; j++)
+			if (win > lose)
 			{
-				setResult(ranka[0], team, i, j);
+				for (i = 0; i < rank; i++)
+				{
+					for (j = rank; j < 20; j++)
+					{
+						setResult('w', team, i, j);
+					}
+				}
+			}
+			else
+			{
+				for (i = 0; i < rank; i++)
+				{
+					for (j = rank; j < 20; j++)
+					{
+						setResult('l', team, i, j);
+					}
+				}
 			}
 		}
-		for (i = rank; i<20; i++)
+		else
+		{
+			for (i = 0; i < rank; i++)
+			{
+				for (j = rank; j < 20; j++)
+				{
+					setResult('t', team, i, j);
+				}
+			}
+		}
+		for (i = rank; i < 20; i++)
 		{
 			for (j = rank; j < 20; j++)
 			{
 				setResult('t', team, i, j);
 			}
 		}
-		
 
 		if (win >= lose)
 		{
